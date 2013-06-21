@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C# Express 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RsiAlarm", "RsiAlarm\RsiAlarm.csproj", "{1E80C8E2-5C2D-4704-A2F5-0B200D6495A8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1E80C8E2-5C2D-4704-A2F5-0B200D6495A8}.Debug|x86.ActiveCfg = Debug|x86
+		{1E80C8E2-5C2D-4704-A2F5-0B200D6495A8}.Debug|x86.Build.0 = Debug|x86
+		{1E80C8E2-5C2D-4704-A2F5-0B200D6495A8}.Release|x86.ActiveCfg = Release|x86
+		{1E80C8E2-5C2D-4704-A2F5-0B200D6495A8}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
