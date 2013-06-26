@@ -22,40 +22,40 @@ using System.Runtime.InteropServices;
 
 namespace RsiAlarm
 {
-    public class KeyboardLowLevelHook : GlobalHook<KeyboardLowLevelEventArgs>
+    public class KeyboardEventHook : GlobalHook<KeyboardEventArgs>
     {
-        private const int WH_KEYBOARD_LL = 13;
-
-        private const int WM_KEYDOWN = 0x0100;
+        private const int WH_KEYBOARD = 2;
 
         public override int HookTypeId
         {
             get
             {
-                return WH_KEYBOARD_LL;
+                return WH_KEYBOARD;
             }
         }
 
-        protected override KeyboardLowLevelEventArgs CreateEventArgs(int nCode, IntPtr wParam, IntPtr lParam)
+        protected override KeyboardEventArgs CreateEventArgs(int nCode, IntPtr wParam, IntPtr lParam)
         {
-            KeyboardLowLevelEventArgs e = new KeyboardLowLevelEventArgs();
+            KeyboardEventArgs e = new KeyboardEventArgs();
 
-            e.VkCode = Marshal.ReadInt32(lParam);
-            e.ScanCode = Marshal.ReadInt32(lParam + 4);
-            int flags = Marshal.ReadInt32(lParam + 8);
+            e.VkCode = Marshal.ReadInt32(wParam);
+            int flags = Marshal.ReadInt32(lParam);
 
             BitVector32 flagsBits = new BitVector32(flags);
-            e.IsExtended = flagsBits[0];
-            e.IsInjected = flagsBits[4];
-            e.IsAltDown = flagsBits[5];
-            e.IsUp = flagsBits[7];
+            BitVector32.Section repeatCountSection = BitVector32.CreateSection(32767);
+            BitVector32.Section scanCodeSection = BitVector32.CreateSection(255, repeatCountSection);
+            e.RepeatCount = flagsBits[repeatCountSection];
+            e.ScanCode = flagsBits[scanCodeSection];
+            e.IsExtended = flagsBits[24];
+            e.IsAltDown = flagsBits[29];
+            e.IsUp = !flagsBits[30];
+            e.IsReleasing = flagsBits[31];
             return e;
         }
 
         protected override bool ShouldTriggerEvent(int nCode, IntPtr wParam)
         {
-            // TODO: allow setting if should trigger in keydown or keyup or both
-            return nCode >= 0 && wParam == (IntPtr)WM_KEYDOWN;
+            return nCode >= 0;
         }
     }
 }
