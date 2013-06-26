@@ -41,7 +41,7 @@ namespace RsiAlarm
     /// </summary>
     public partial class MainWindow : Window
     {
-        private GlobalHook KeyboardHook;
+        private KeyboardLowLevelHook KeyboardHook;
 
         private long KeyboardPoints = 0;
 
@@ -76,7 +76,7 @@ namespace RsiAlarm
 
             InitializeComponent();
 
-            KeyboardHook = new GlobalHook();
+            KeyboardHook = new KeyboardLowLevelHook();
             KeyboardHook.EventTriggered += KeyboardHook_EventTriggered;
             KeyboardHook.Set();
 
