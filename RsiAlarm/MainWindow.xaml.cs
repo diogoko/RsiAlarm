@@ -78,6 +78,7 @@ namespace RsiAlarm
 
             KeyboardHook = new KeyboardLowLevelHook();
             KeyboardHook.EventTriggered += KeyboardHook_EventTriggered;
+            KeyboardHook.EventFilter = KeyboardLowLevelHook.KeyboardEvents.KeyUp;
             KeyboardHook.Set();
 
             KeyboardStopwatch = Stopwatch.StartNew();
@@ -109,7 +110,7 @@ namespace RsiAlarm
             Visibility = Visibility.Hidden;
         }
 
-        private void KeyboardHook_EventTriggered(object sender, EventArgs e)
+        private void KeyboardHook_EventTriggered(object sender, KeyboardLowLevelEventArgs e)
         {
             KeyboardPoints++;
 
