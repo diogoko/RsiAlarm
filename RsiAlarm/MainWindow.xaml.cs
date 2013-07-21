@@ -43,17 +43,13 @@ namespace RsiAlarm
     {
         private KeyboardLowLevelHook KeyboardHook;
 
-        private long KeyboardPoints = 0;
-
-        private Stopwatch KeyboardStopwatch;
-
-        private long KeyboardPointsWarningLimit;
-
-        private long KeyboardPointsDecreaseRate;
-
         private int FadeInDuration;
 
         private int FadeOutDuration;
+
+        private WarningController Controller;
+
+        private Storyboard WarningStoryboard;
 
         private int LoadIntSetting(string key, int defaultValue)
         {
@@ -69,8 +65,11 @@ namespace RsiAlarm
 
         public MainWindow()
         {
-            KeyboardPointsWarningLimit = LoadIntSetting("KeyboardPointsWarningLimit", 15);
-            KeyboardPointsDecreaseRate = LoadIntSetting("KeyboardPointsDecreaseRate", 5);
+            Controller = new WarningController();
+            Controller.KeyboardPointsWarningLimit = LoadIntSetting("KeyboardPointsWarningLimit", 15);
+            Controller.KeyboardPointsDecreaseRate = LoadIntSetting("KeyboardPointsDecreaseRate", 5);
+            Controller.Warning += Controller_Warning;
+
             FadeInDuration = LoadIntSetting("FadeInDuration", 50);
             FadeOutDuration = LoadIntSetting("FadeOutDuration", 300);
 
@@ -81,8 +80,11 @@ namespace RsiAlarm
             KeyboardHook.EventFilter = KeyboardLowLevelHook.KeyboardEvents.KeyUp;
             KeyboardHook.Set();
 
-            KeyboardStopwatch = Stopwatch.StartNew();
+            CreateWarningEffects();
+        }
 
+        private void CreateWarningEffects()
+        {
             DoubleAnimation fadeIn = new DoubleAnimation();
             fadeIn.From = 0.0;
             fadeIn.To = 1.0;
@@ -112,27 +114,14 @@ namespace RsiAlarm
 
         private void KeyboardHook_EventTriggered(object sender, KeyboardLowLevelEventArgs e)
         {
-            KeyboardPoints++;
-
-            long elapsed = KeyboardStopwatch.ElapsedMilliseconds;
-            if (elapsed >= 1000)
-            {
-                long pointsToRemove = elapsed * KeyboardPointsDecreaseRate / 1000;
-                KeyboardPoints = Math.Max(KeyboardPoints - pointsToRemove, 0);
-
-                KeyboardStopwatch.Restart();
-            }
-
-            if (KeyboardPoints >= KeyboardPointsWarningLimit)
-            {
-                Visibility = Visibility.Visible;
-
-                WarningStoryboard.Begin();
-                KeyboardPoints = 0;
-            }
+            Controller.HandleKey();
         }
 
-        private Storyboard WarningStoryboard;
+        private void Controller_Warning(object sender, EventArgs e)
+        {
+            Visibility = Visibility.Visible;
+            WarningStoryboard.Begin();
+        }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
