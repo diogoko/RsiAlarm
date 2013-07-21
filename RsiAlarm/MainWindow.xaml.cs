@@ -69,7 +69,8 @@ namespace RsiAlarm
             Controller.KeyboardWarningSoftLimit = LoadIntSetting("KeyboardWarningSoftLimit", 10);
             Controller.KeyboardWarningHardLimit = LoadIntSetting("KeyboardWarningHardLimit", 15);
             Controller.KeyboardDecreaseRate = LoadIntSetting("KeyboardDecreaseRate", 5);
-            Controller.Warning += Controller_Warning;
+            Controller.SoftLimitWarning += Controller_SoftLimitWarning;
+            Controller.HardLimitWarning += Controller_HardLimitWarning;
 
             FadeInDuration = LoadIntSetting("FadeInDuration", 50);
             FadeOutDuration = LoadIntSetting("FadeOutDuration", 300);
@@ -118,7 +119,12 @@ namespace RsiAlarm
             Controller.HandleKey();
         }
 
-        private void Controller_Warning(object sender, EventArgs e)
+        private void Controller_SoftLimitWarning(object sender, SoftLimitEventArgs e)
+        {
+            Console.WriteLine(e.Level);
+        }
+
+        private void Controller_HardLimitWarning(object sender, EventArgs e)
         {
             Visibility = Visibility.Visible;
             WarningStoryboard.Begin();

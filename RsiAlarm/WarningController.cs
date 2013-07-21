@@ -29,6 +29,10 @@ namespace RsiAlarm
 
         public long KeyboardDecreaseRate;
 
+        public event EventHandler<SoftLimitEventArgs> SoftLimitWarning;
+
+        public event EventHandler HardLimitWarning;
+
         private long KeyboardPoints = 0;
 
         private Stopwatch KeyboardStopwatch;
@@ -37,8 +41,6 @@ namespace RsiAlarm
         {
             KeyboardStopwatch = Stopwatch.StartNew();
         }
-
-        public event EventHandler Warning;
 
         public void HandleKey()
         {
@@ -55,12 +57,20 @@ namespace RsiAlarm
 
             if (KeyboardPoints >= KeyboardWarningHardLimit)
             {
-                if (Warning != null)
+                if (HardLimitWarning != null)
                 {
-                    Warning(this, new EventArgs());
+                    HardLimitWarning(this, new EventArgs());
                 }
 
                 KeyboardPoints = 0;
+            }
+            else if (KeyboardPoints >= KeyboardWarningSoftLimit)
+            {
+                if (SoftLimitWarning != null)
+                {
+                    long level = (KeyboardPoints - KeyboardWarningSoftLimit) * 100 / (KeyboardWarningHardLimit - KeyboardWarningSoftLimit);
+                    SoftLimitWarning(this, new SoftLimitEventArgs((int) level));
+                }
             }
         }
     }
