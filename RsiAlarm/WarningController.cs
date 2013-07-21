@@ -23,9 +23,11 @@ namespace RsiAlarm
 {
     public class WarningController
     {
-        public long KeyboardPointsWarningLimit;
+        public long KeyboardWarningSoftLimit;
 
-        public long KeyboardPointsDecreaseRate;
+        public long KeyboardWarningHardLimit;
+
+        public long KeyboardDecreaseRate;
 
         private long KeyboardPoints = 0;
 
@@ -45,13 +47,13 @@ namespace RsiAlarm
             long elapsed = KeyboardStopwatch.ElapsedMilliseconds;
             if (elapsed >= 1000)
             {
-                long pointsToRemove = elapsed * KeyboardPointsDecreaseRate / 1000;
+                long pointsToRemove = elapsed * KeyboardDecreaseRate / 1000;
                 KeyboardPoints = Math.Max(KeyboardPoints - pointsToRemove, 0);
 
                 KeyboardStopwatch.Restart();
             }
 
-            if (KeyboardPoints >= KeyboardPointsWarningLimit)
+            if (KeyboardPoints >= KeyboardWarningHardLimit)
             {
                 if (Warning != null)
                 {

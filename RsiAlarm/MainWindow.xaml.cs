@@ -66,8 +66,9 @@ namespace RsiAlarm
         public MainWindow()
         {
             Controller = new WarningController();
-            Controller.KeyboardPointsWarningLimit = LoadIntSetting("KeyboardPointsWarningLimit", 15);
-            Controller.KeyboardPointsDecreaseRate = LoadIntSetting("KeyboardPointsDecreaseRate", 5);
+            Controller.KeyboardWarningSoftLimit = LoadIntSetting("KeyboardWarningSoftLimit", 10);
+            Controller.KeyboardWarningHardLimit = LoadIntSetting("KeyboardWarningHardLimit", 15);
+            Controller.KeyboardDecreaseRate = LoadIntSetting("KeyboardDecreaseRate", 5);
             Controller.Warning += Controller_Warning;
 
             FadeInDuration = LoadIntSetting("FadeInDuration", 50);
