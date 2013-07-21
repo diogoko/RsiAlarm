@@ -17,7 +17,6 @@
  * along with RsiAlarm. If not, see <http://www.gnu.org/licenses/>.
  */
 using System;
-using System.Collections.Specialized;
 using System.Runtime.InteropServices;
 
 namespace RsiAlarm
@@ -41,15 +40,12 @@ namespace RsiAlarm
             e.VkCode = Marshal.ReadInt32(wParam);
             int flags = Marshal.ReadInt32(lParam);
 
-            BitVector32 flagsBits = new BitVector32(flags);
-            BitVector32.Section repeatCountSection = BitVector32.CreateSection(32767);
-            BitVector32.Section scanCodeSection = BitVector32.CreateSection(255, repeatCountSection);
-            e.RepeatCount = flagsBits[repeatCountSection];
-            e.ScanCode = flagsBits[scanCodeSection];
-            e.IsExtended = flagsBits[24];
-            e.IsAltDown = flagsBits[29];
-            e.IsUp = !flagsBits[30];
-            e.IsReleasing = flagsBits[31];
+            e.RepeatCount = flags & 0xFFFF;
+            e.ScanCode = (flags >> 16) & 0xFF;
+            e.IsExtended = (flags & 0x1000000) != 0;
+            e.IsAltDown = (flags & 0x20000000) != 0;
+            e.IsUp = (flags & 0x40000000) == 0;
+            e.IsReleasing = (flags & 0x80000000) != 0;
             return e;
         }
 
