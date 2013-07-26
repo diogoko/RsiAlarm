@@ -27,13 +27,28 @@ namespace RsiAlarm
 
         public long KeyboardWarningHardLimit;
 
+        public long KeyboardIncreaseRate;
+
         public long KeyboardDecreaseRate;
 
-        public event EventHandler<SoftLimitEventArgs> SoftLimitWarning;
+        /// <summary>
+        /// Occurs when keyboard points go above the soft limit but still under the hard limit.
+        /// </summary>
+        public event EventHandler<SoftLimitEventArgs> SoftLimitWarningStart;
 
+        /// <summary>
+        /// Occurs when keyboard points go above the hard limit.
+        /// </summary>
         public event EventHandler HardLimitWarning;
 
+        /// <summary>
+        /// Occurs when the soft limit warning finishes (keyboard points go below soft limit).
+        /// </summary>
+        public event EventHandler SoftLimitWarningEnd;
+
         private long KeyboardPoints = 0;
+
+        private WarningState CurrentWarning = WarningState.None;
 
         private Stopwatch KeyboardStopwatch;
 
@@ -44,7 +59,7 @@ namespace RsiAlarm
 
         public void HandleKey()
         {
-            KeyboardPoints++;
+            KeyboardPoints += KeyboardIncreaseRate;
 
             long elapsed = KeyboardStopwatch.ElapsedMilliseconds;
             if (elapsed >= 1000)
@@ -57,6 +72,8 @@ namespace RsiAlarm
 
             if (KeyboardPoints >= KeyboardWarningHardLimit)
             {
+                CurrentWarning = WarningState.None;
+
                 if (HardLimitWarning != null)
                 {
                     HardLimitWarning(this, new EventArgs());
@@ -66,10 +83,21 @@ namespace RsiAlarm
             }
             else if (KeyboardPoints >= KeyboardWarningSoftLimit)
             {
-                if (SoftLimitWarning != null)
+                CurrentWarning = WarningState.SoftLimit;
+
+                if (SoftLimitWarningStart != null)
                 {
                     long level = (KeyboardPoints - KeyboardWarningSoftLimit) * 100 / (KeyboardWarningHardLimit - KeyboardWarningSoftLimit);
-                    SoftLimitWarning(this, new SoftLimitEventArgs((int) level));
+                    SoftLimitWarningStart(this, new SoftLimitEventArgs((int) level));
+                }
+            }
+            else if (KeyboardPoints < KeyboardWarningSoftLimit && CurrentWarning == WarningState.SoftLimit)
+            {
+                CurrentWarning = WarningState.None;
+
+                if (SoftLimitWarningEnd != null)
+                {
+                    SoftLimitWarningEnd(this, new EventArgs());
                 }
             }
         }

@@ -68,8 +68,10 @@ namespace RsiAlarm
             Controller = new WarningController();
             Controller.KeyboardWarningSoftLimit = LoadIntSetting("KeyboardWarningSoftLimit", 10);
             Controller.KeyboardWarningHardLimit = LoadIntSetting("KeyboardWarningHardLimit", 15);
+            Controller.KeyboardIncreaseRate = LoadIntSetting("KeyboardIncreaseRate", 1);
             Controller.KeyboardDecreaseRate = LoadIntSetting("KeyboardDecreaseRate", 5);
-            Controller.SoftLimitWarning += Controller_SoftLimitWarning;
+            Controller.SoftLimitWarningStart += Controller_SoftLimitWarningStart;
+            Controller.SoftLimitWarningEnd += Controller_SoftLimitWarningEnd;
             Controller.HardLimitWarning += Controller_HardLimitWarning;
 
             FadeInDuration = LoadIntSetting("FadeInDuration", 50);
@@ -111,7 +113,7 @@ namespace RsiAlarm
 
         private void WarningStoryboard_Completed(object sender, EventArgs e)
         {
-            Visibility = Visibility.Hidden;
+            //Visibility = Visibility.Hidden;
         }
 
         private void KeyboardHook_EventTriggered(object sender, KeyboardLowLevelEventArgs e)
@@ -119,15 +121,22 @@ namespace RsiAlarm
             Controller.HandleKey();
         }
 
-        private void Controller_SoftLimitWarning(object sender, SoftLimitEventArgs e)
+        private void Controller_SoftLimitWarningStart(object sender, SoftLimitEventArgs e)
         {
+            Visibility = Visibility.Visible;
+            WarningRectangle.Opacity = e.Level;
             Console.WriteLine(e.Level);
+        }
+
+        private void Controller_SoftLimitWarningEnd(object sender, EventArgs e)
+        {
+            Visibility = Visibility.Hidden;
         }
 
         private void Controller_HardLimitWarning(object sender, EventArgs e)
         {
-            Visibility = Visibility.Visible;
-            WarningStoryboard.Begin();
+            //Visibility = Visibility.Visible;
+            //WarningStoryboard.Begin();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)

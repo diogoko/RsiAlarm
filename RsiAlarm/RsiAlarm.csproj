@@ -63,6 +63,7 @@
     <Compile Include="SoftLimitEventArgs.cs" />
     <Compile Include="User32.cs" />
     <Compile Include="WarningController.cs" />
+    <Compile Include="WarningState.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
