@@ -49,7 +49,11 @@ namespace RsiAlarm
 
         private WarningController Controller;
 
+        private DoubleAnimation FadeIn;
+
         private Storyboard WarningStoryboard;
+
+        private WarningState CurrentWarning = WarningState.None;
 
         private int LoadIntSetting(string key, int defaultValue)
         {
@@ -89,31 +93,34 @@ namespace RsiAlarm
 
         private void CreateWarningEffects()
         {
-            DoubleAnimation fadeIn = new DoubleAnimation();
-            fadeIn.From = 0.0;
-            fadeIn.To = 1.0;
-            fadeIn.Duration = new Duration(TimeSpan.FromMilliseconds(FadeInDuration));
+            FadeIn = new DoubleAnimation();
+            FadeIn.From = 0.0;
+            FadeIn.To = 1.0;
+            FadeIn.Duration = new Duration(TimeSpan.FromMilliseconds(FadeInDuration));
+            FadeIn.FillBehavior = FillBehavior.Stop;
 
             DoubleAnimation fadeOut = new DoubleAnimation();
             fadeOut.From = 1.0;
             fadeOut.To = 0.0;
             fadeOut.Duration = new Duration(TimeSpan.FromMilliseconds(FadeOutDuration));
+            fadeOut.FillBehavior = FillBehavior.Stop;
 
             WarningStoryboard = new Storyboard();
-            WarningStoryboard.Children.Add(fadeIn);
+            WarningStoryboard.Children.Add(FadeIn);
             WarningStoryboard.Children.Add(fadeOut);
             WarningStoryboard.Completed += WarningStoryboard_Completed;
 
-            Storyboard.SetTarget(fadeIn, WarningRectangle);
-            Storyboard.SetTargetProperty(fadeIn, new PropertyPath(Rectangle.OpacityProperty));
+            Storyboard.SetTarget(FadeIn, WarningRectangle);
+            Storyboard.SetTargetProperty(FadeIn, new PropertyPath(Rectangle.OpacityProperty));
 
             Storyboard.SetTarget(fadeOut, WarningRectangle);
             Storyboard.SetTargetProperty(fadeOut, new PropertyPath(Rectangle.OpacityProperty));
         }
 
-        private void WarningStoryboard_Completed(object sender, EventArgs e)
+        private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            //Visibility = Visibility.Hidden;
+            Width = SystemParameters.PrimaryScreenWidth;
+            Height = SystemParameters.CaptionHeight;
         }
 
         private void KeyboardHook_EventTriggered(object sender, KeyboardLowLevelEventArgs e)
@@ -123,26 +130,43 @@ namespace RsiAlarm
 
         private void Controller_SoftLimitWarningStart(object sender, SoftLimitEventArgs e)
         {
-            Visibility = Visibility.Visible;
-            WarningRectangle.Opacity = e.Level;
-            Console.WriteLine(e.Level);
+            if (CurrentWarning == WarningState.None || CurrentWarning == WarningState.SoftLimit)
+            {
+                Visibility = Visibility.Visible;
+                WarningRectangle.Opacity = e.Level;
+
+                CurrentWarning = WarningState.SoftLimit;
+            }
         }
 
         private void Controller_SoftLimitWarningEnd(object sender, EventArgs e)
         {
-            Visibility = Visibility.Hidden;
+            if (CurrentWarning == WarningState.SoftLimit)
+            {
+                Visibility = Visibility.Hidden;
+                CurrentWarning = WarningState.None;
+            }
         }
 
         private void Controller_HardLimitWarning(object sender, EventArgs e)
         {
-            //Visibility = Visibility.Visible;
-            //WarningStoryboard.Begin();
+            if (CurrentWarning == WarningState.None || CurrentWarning == WarningState.SoftLimit)
+            {
+                Visibility = Visibility.Visible;
+                FadeIn.From = Opacity;
+                WarningStoryboard.Begin();
+
+                CurrentWarning = WarningState.HardLimit;
+            }
         }
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
+        private void WarningStoryboard_Completed(object sender, EventArgs e)
         {
-            Width = SystemParameters.PrimaryScreenWidth;
-            Height = SystemParameters.CaptionHeight;
+            if (CurrentWarning == WarningState.HardLimit)
+            {
+                Visibility = Visibility.Hidden;
+                CurrentWarning = WarningState.None;
+            }
         }
     }
 }

@@ -7,9 +7,9 @@ namespace RsiAlarm
 {
     public class SoftLimitEventArgs : EventArgs
     {
-        public int Level;
+        public double Level;
 
-        public SoftLimitEventArgs(int level)
+        public SoftLimitEventArgs(double level)
         {
             this.Level = level;
         }

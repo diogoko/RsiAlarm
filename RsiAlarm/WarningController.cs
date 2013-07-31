@@ -62,7 +62,7 @@ namespace RsiAlarm
             KeyboardPoints += KeyboardIncreaseRate;
 
             long elapsed = KeyboardStopwatch.ElapsedMilliseconds;
-            if (elapsed >= 1000)
+            if (elapsed >= 100)
             {
                 long pointsToRemove = elapsed * KeyboardDecreaseRate / 1000;
                 KeyboardPoints = Math.Max(KeyboardPoints - pointsToRemove, 0);
@@ -87,8 +87,8 @@ namespace RsiAlarm
 
                 if (SoftLimitWarningStart != null)
                 {
-                    long level = (KeyboardPoints - KeyboardWarningSoftLimit) * 100 / (KeyboardWarningHardLimit - KeyboardWarningSoftLimit);
-                    SoftLimitWarningStart(this, new SoftLimitEventArgs((int) level));
+                    double level = ((double)KeyboardPoints - (double)KeyboardWarningSoftLimit) / ((double)KeyboardWarningHardLimit - (double)KeyboardWarningSoftLimit);
+                    SoftLimitWarningStart(this, new SoftLimitEventArgs(level));
                 }
             }
             else if (KeyboardPoints < KeyboardWarningSoftLimit && CurrentWarning == WarningState.SoftLimit)
