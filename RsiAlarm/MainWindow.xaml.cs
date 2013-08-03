@@ -51,6 +51,8 @@ namespace RsiAlarm
 
         private DoubleAnimation FadeIn;
 
+        private DoubleAnimation FadeOut;
+
         private Storyboard WarningStoryboard;
 
         private WarningState CurrentWarning = WarningState.None;
@@ -75,7 +77,6 @@ namespace RsiAlarm
             Controller.KeyboardIncreaseRate = LoadIntSetting("KeyboardIncreaseRate", 1);
             Controller.KeyboardDecreaseRate = LoadIntSetting("KeyboardDecreaseRate", 5);
             Controller.SoftLimitWarningStart += Controller_SoftLimitWarningStart;
-            Controller.SoftLimitWarningEnd += Controller_SoftLimitWarningEnd;
             Controller.HardLimitWarning += Controller_HardLimitWarning;
 
             FadeInDuration = LoadIntSetting("FadeInDuration", 50);
@@ -94,27 +95,23 @@ namespace RsiAlarm
         private void CreateWarningEffects()
         {
             FadeIn = new DoubleAnimation();
-            FadeIn.From = 0.0;
-            FadeIn.To = 1.0;
             FadeIn.Duration = new Duration(TimeSpan.FromMilliseconds(FadeInDuration));
             FadeIn.FillBehavior = FillBehavior.Stop;
 
-            DoubleAnimation fadeOut = new DoubleAnimation();
-            fadeOut.From = 1.0;
-            fadeOut.To = 0.0;
-            fadeOut.Duration = new Duration(TimeSpan.FromMilliseconds(FadeOutDuration));
-            fadeOut.FillBehavior = FillBehavior.Stop;
+            FadeOut = new DoubleAnimation();
+            FadeOut.Duration = new Duration(TimeSpan.FromMilliseconds(FadeOutDuration));
+            FadeOut.FillBehavior = FillBehavior.Stop;
 
             WarningStoryboard = new Storyboard();
             WarningStoryboard.Children.Add(FadeIn);
-            WarningStoryboard.Children.Add(fadeOut);
+            WarningStoryboard.Children.Add(FadeOut);
             WarningStoryboard.Completed += WarningStoryboard_Completed;
 
             Storyboard.SetTarget(FadeIn, WarningRectangle);
             Storyboard.SetTargetProperty(FadeIn, new PropertyPath(Rectangle.OpacityProperty));
 
-            Storyboard.SetTarget(fadeOut, WarningRectangle);
-            Storyboard.SetTargetProperty(fadeOut, new PropertyPath(Rectangle.OpacityProperty));
+            Storyboard.SetTarget(FadeOut, WarningRectangle);
+            Storyboard.SetTargetProperty(FadeOut, new PropertyPath(Rectangle.OpacityProperty));
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -130,33 +127,28 @@ namespace RsiAlarm
 
         private void Controller_SoftLimitWarningStart(object sender, SoftLimitEventArgs e)
         {
-            if (CurrentWarning == WarningState.None || CurrentWarning == WarningState.SoftLimit)
-            {
-                Visibility = Visibility.Visible;
-                WarningRectangle.Opacity = e.Level;
-
-                CurrentWarning = WarningState.SoftLimit;
-            }
-        }
-
-        private void Controller_SoftLimitWarningEnd(object sender, EventArgs e)
-        {
-            if (CurrentWarning == WarningState.SoftLimit)
-            {
-                Visibility = Visibility.Hidden;
-                CurrentWarning = WarningState.None;
-            }
+            AnimateTo(e.Level, WarningState.SoftLimit);
         }
 
         private void Controller_HardLimitWarning(object sender, EventArgs e)
         {
+            AnimateTo(1, WarningState.HardLimit);
+        }
+
+        private void AnimateTo(double opacity, WarningState state)
+        {
             if (CurrentWarning == WarningState.None || CurrentWarning == WarningState.SoftLimit)
             {
                 Visibility = Visibility.Visible;
-                FadeIn.From = Opacity;
+
+                WarningStoryboard.Stop();
+                FadeIn.From = WarningRectangle.Opacity;
+                FadeIn.To = opacity;
+                FadeOut.From = opacity;
+                FadeOut.To = 0;
                 WarningStoryboard.Begin();
 
-                CurrentWarning = WarningState.HardLimit;
+                CurrentWarning = state;
             }
         }
 

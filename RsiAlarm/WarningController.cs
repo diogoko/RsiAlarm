@@ -41,11 +41,6 @@ namespace RsiAlarm
         /// </summary>
         public event EventHandler HardLimitWarning;
 
-        /// <summary>
-        /// Occurs when the soft limit warning finishes (keyboard points go below soft limit).
-        /// </summary>
-        public event EventHandler SoftLimitWarningEnd;
-
         private long KeyboardPoints = 0;
 
         private WarningState CurrentWarning = WarningState.None;
@@ -89,15 +84,6 @@ namespace RsiAlarm
                 {
                     double level = ((double)KeyboardPoints - (double)KeyboardWarningSoftLimit) / ((double)KeyboardWarningHardLimit - (double)KeyboardWarningSoftLimit);
                     SoftLimitWarningStart(this, new SoftLimitEventArgs(level));
-                }
-            }
-            else if (KeyboardPoints < KeyboardWarningSoftLimit && CurrentWarning == WarningState.SoftLimit)
-            {
-                CurrentWarning = WarningState.None;
-
-                if (SoftLimitWarningEnd != null)
-                {
-                    SoftLimitWarningEnd(this, new EventArgs());
                 }
             }
         }
