@@ -148,6 +148,9 @@ namespace RsiAlarm
                 FadeOut.To = 0;
                 WarningStoryboard.Begin();
 
+                Color newColor = ColorMixer.Mix(Colors.Red, Colors.Yellow, opacity);
+                WarningRectangle.Fill = new SolidColorBrush(newColor);
+
                 CurrentWarning = state;
             }
         }
