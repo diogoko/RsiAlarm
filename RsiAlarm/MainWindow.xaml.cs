@@ -47,6 +47,10 @@ namespace RsiAlarm
 
         private int FadeOutDuration;
 
+        private Color SoftLimitWarningColor;
+
+        private Color HardLimitWarningColor;
+
         private WarningController Controller;
 
         private DoubleAnimation FadeIn;
@@ -69,6 +73,25 @@ namespace RsiAlarm
             }
         }
 
+        private Color LoadColorSetting(string key, Color defaultValue)
+        {
+            if (ConfigurationManager.AppSettings[key] != null)
+            {
+                try
+                {
+                    return (Color)ColorConverter.ConvertFromString(ConfigurationManager.AppSettings[key]);
+                }
+                catch (FormatException)
+                {
+                    return defaultValue;
+                }
+            }
+            else
+            {
+                return defaultValue;
+            }
+        }
+
         public MainWindow()
         {
             Controller = new WarningController();
@@ -81,6 +104,9 @@ namespace RsiAlarm
 
             FadeInDuration = LoadIntSetting("FadeInDuration", 50);
             FadeOutDuration = LoadIntSetting("FadeOutDuration", 300);
+
+            SoftLimitWarningColor = LoadColorSetting("SoftLimitWarningColor", Colors.Yellow);
+            HardLimitWarningColor = LoadColorSetting("HardLimitWarningColor", Colors.Red);
 
             InitializeComponent();
 
@@ -148,7 +174,7 @@ namespace RsiAlarm
                 FadeOut.To = 0;
                 WarningStoryboard.Begin();
 
-                Color newColor = ColorMixer.Mix(Colors.Red, Colors.Yellow, opacity);
+                Color newColor = ColorMixer.Mix(HardLimitWarningColor, SoftLimitWarningColor, opacity);
                 WarningRectangle.Fill = new SolidColorBrush(newColor);
 
                 CurrentWarning = state;
