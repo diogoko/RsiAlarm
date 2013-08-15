@@ -60,7 +60,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="ColorConverter.cs" />
     <Compile Include="ColorMixer.cs" />
     <Compile Include="SoftLimitEventArgs.cs" />
     <Compile Include="User32.cs" />
