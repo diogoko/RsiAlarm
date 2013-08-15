@@ -72,10 +72,10 @@ namespace RsiAlarm
         public MainWindow()
         {
             Controller = new WarningController();
-            Controller.KeyboardWarningSoftLimit = LoadIntSetting("KeyboardWarningSoftLimit", 10);
-            Controller.KeyboardWarningHardLimit = LoadIntSetting("KeyboardWarningHardLimit", 15);
-            Controller.KeyboardIncreaseRate = LoadIntSetting("KeyboardIncreaseRate", 1);
-            Controller.KeyboardDecreaseRate = LoadIntSetting("KeyboardDecreaseRate", 5);
+            Controller.KeyboardWarningSoftLimit = LoadIntSetting("KeyboardWarningSoftLimit", 100);
+            Controller.KeyboardWarningHardLimit = LoadIntSetting("KeyboardWarningHardLimit", 200);
+            Controller.KeyboardIncreaseRate = LoadIntSetting("KeyboardIncreaseRate", 10);
+            Controller.KeyboardDecreaseRate = LoadIntSetting("KeyboardDecreaseRate", 50);
             Controller.SoftLimitWarningStart += Controller_SoftLimitWarningStart;
             Controller.HardLimitWarning += Controller_HardLimitWarning;
 
